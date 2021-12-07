@@ -2,6 +2,8 @@ const usuario = require('../model/Usuario');
 const config = require('../config/database');
 const bcryptjs = require('bcryptjs');
 const yup = require('yup');
+const jwt = require('jsonwebtoken');
+const auth = require('../config/auth');
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize(config);
 
@@ -36,7 +38,7 @@ const UsuarioController = {
 
     InsertUser: async (req, res) => {
 
-        // Validação token com yup schema
+        // Validação com yup schema
         // Não entendi p q ela serve kkkkkkkk mas segundo o tutorial é importante ter
         let schema = yup.object().shape({
             nome: yup.string().required(),
@@ -46,9 +48,9 @@ const UsuarioController = {
 
         // se esse retorno for 'false'
         if(!(await schema.isValid(req.body))){
-            return res.status(400).json({message:"Dados invalidos"})
+            return res.status(400).json({message:"Dados inválidos"})
         }
-        // Fim validação token
+        // Fim validação
 
         const data = {
             nome,
@@ -62,7 +64,7 @@ const UsuarioController = {
         })
 
         if (userExist){
-            return res.status(400).json({ message:"Usuario existente" }); 
+            return res.status(400).json({ message:"Usuário existente" }); 
         }
 
         // Tornando a senha cryptografada
@@ -76,7 +78,7 @@ const UsuarioController = {
             token: ''
         });
 
-        return res.status(200).send(IncluirUsuario);
+        return res.json({message: "Usuário inserido com sucesso"})
     },
 
     AlterUser: async (req, res) => {
@@ -95,14 +97,14 @@ const UsuarioController = {
             })
 
             if (!BuscaUsuario) {
-                return res.send("Usuario inexistente")
+                return res.send("Usuário inexistente")
             }
 
             BuscaUsuario.nome = nome
             BuscaUsuario.senha = senha
 
             BuscaUsuario.save()
-            return res.status(200).json(BuscaUsuario)
+            return res.json(BuscaUsuario)
 
         } catch (error) {
             console.log(error)
@@ -117,8 +119,28 @@ const UsuarioController = {
         })
 
         if (!userExist){
-            return res.status(400).json({ message:"Usuario não existe" }); 
+            return res.status(400).json({ message:"Usuário não existe" }); 
         }
+
+        // Verificação de senha
+        if (!
+            // Comparando a senha passada no 'body' com a retornada do 'userExist', e vai retornar um boolean
+            (await bcryptjs.compare(senha, userExist.senha))
+            ){
+                return res.status(400).json({message: "Senha inválida"})
+        }
+
+        return res.json({
+            user: {
+                name: userExist.nome,
+                cpf: userExist.cpf
+            },
+            token: jwt.sign(
+                {id: userExist.id},
+                 auth.secret, 
+                 {expiresIn: auth.expireIn})
+        })
+        
     }
 };
 
