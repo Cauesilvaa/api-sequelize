@@ -117,10 +117,16 @@ const UsuarioController = {
         const userExist = await usuario.findOne({
             where: { nome }
         })
-
+     
         if (!userExist){
             return res.status(400).json({ message:"Usuário não existe" }); 
         }
+
+        /*if (userExist.nome == nome && userExist.senha == senha){
+            return res.json({message: "Login feito com sucesso"})
+        } else {
+            return res.json({message: "Login errado"})
+        }*/
 
         // Verificação de senha
         if (!
@@ -141,6 +147,26 @@ const UsuarioController = {
                  {expiresIn: auth.expireIn})
         })
         
+    },
+
+    SearchUser: async (req, res) => {
+        const { nome } = req.body;
+
+        let where = {};
+
+        if (nome) where.nome = nome;
+
+        try {
+            const findUser = await usuario.findAll({ 
+                where,
+                attributes: ['id', 'nome']
+             })
+
+            if (findUser) return res.json(findUser)
+
+        } catch (error) {
+            console.log(error)
+        }
     }
 };
 

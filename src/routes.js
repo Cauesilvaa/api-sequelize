@@ -31,8 +31,9 @@ routes.post('/upload', upload.single('file'), (req, res) => {
 routes.get('/user', AuthMidleware, UsuarioController.Users);
 routes.get('/user2', AuthMidleware, UsuarioController.Users2);
 routes.post('/user/insert',  UsuarioController.InsertUser);
-routes.post('/user/alter', AuthMidleware, UsuarioController.AlterUser);
+routes.put('/user/alter', AuthMidleware, UsuarioController.AlterUser);
 routes.post('/user/login', UsuarioController.Login);
+routes.post('/user/search', AuthMidleware, UsuarioController.SearchUser);
 
 // Exportando o 'routes' para poder usar ela em toda aplicação
 // Ex: To chamando o routes em 'server.js'
