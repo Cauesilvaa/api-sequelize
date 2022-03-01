@@ -29,7 +29,7 @@ routes.post('/upload', upload.single('file'), (req, res) => {
 });
 
 routes.get('/user', AuthMidleware, UsuarioController.Users);
-routes.get('/user2', AuthMidleware, UsuarioController.Users2);
+routes.get('/user2', UsuarioController.Users2);
 routes.post('/user/insert',  UsuarioController.InsertUser);
 routes.put('/user/alter', AuthMidleware, UsuarioController.AlterUser);
 routes.post('/user/login', UsuarioController.Login);

@@ -33,7 +33,7 @@ const UsuarioController = {
 
     Users2: async (req, res) => {
         const usuarios = await sequelize.query(`SELECT * FROM usuarios`);
-        return res.json(usuarios);
+        return res.json(usuarios[0]);
     },
 
     InsertUser: async (req, res) => {
